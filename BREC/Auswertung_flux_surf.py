@@ -13,6 +13,7 @@ import matplotlib as mpl
 import argparse
 from matplotlib.dates import MonthLocator, WeekdayLocator, DateFormatter
 import datetime as dt
+import calendar
 
 def writeFile(year):
     location = ('files/flux_surf/auswertung_flux_surf_' + year + '.nc')
@@ -47,21 +48,23 @@ for i in range (1850,2010):
     xt_oceans = dataset.createVariable('xt_ocean', 'f4',('xt_ocean'))
     yt_oceans = dataset.createVariable('yt_ocean', 'f4',('yt_ocean'))
 
-    dzt_data = nc_math.variables['dzt'][:]
     area_t_data = nc_math.variables['area_t'][:]
     j = 0
     variable_list = []
 
-for i in nc_data.variables:
-    variable_list.append(nc_data.variables[str(i)])
+    for i in nc_data.variables:
+        variable_list.append(nc_data.variables[str(i)])
 
     shaping = variable_list[4].shape
     shaping = numpy.insert(shaping,0,13)
     variable_int = numpy.ones((shaping))
     variable_int = numpy.ma.array(variable_int)
-
+    daysinyear = 365
+    if calendar.isleap(int(year)) == True:
+	daysinyear = daysinyear+1
+    print daysinyear
     for i in range(4,17):
-        variable_int[j] = (variable_list[i][:]*dzt_data*area_t_data)
+        variable_int[j] = (variable_list[i][:]*area_t_data*daysinyear)
         j = j + 1
     # vertsum
 
@@ -80,22 +83,22 @@ for i in nc_data.variables:
             attrs_n[i].setncattr(j,var.getncattr(j))
         i = i+1
 
-    times[:] = variable_list[4]
+    times[:] = variable_list[2]
     xt_oceans[:] = variable_list[0]
     yt_oceans[:] = variable_list[1]
 
     count = 0
-    for i in variable_list[6:36]:
+    for i in variable_list[4:17]:
         k = dataset.createVariable(str(i.name)+'_field', numpy.float32,('time'))
-	    k.setncattr('units','mol * m^3/kg')
-        k.setncattr('long_name',i.long_name + '+ horizontal + vertical sum')
+	k.setncattr('units','mol * d^-1')
+        k.setncattr('long_name',i.long_name + 'vertical sum')
         k.setncattr('_FillValue',i._FillValue)
         k.setncattr('missing_value', i.missing_value)
         k.setncattr('cell_methods', i.cell_methods)
         k.setncattr('time_avg_info', i.time_avg_info)
         k.setncattr('coordinates', i.coordinates)
-	    k[:] = variable_field[count]
-	    count = count + 1
+        k[:] = variable_field[count]
+        count = count + 1
 
 
     print 'Done with year' + year
@@ -108,3 +111,4 @@ for j in range (len(variable_means[0][:])):
         a[i] = variable_means[i][j]
     means = dataset_mean.createVariable(str(variable_list[4+j].name)+'_mea',numpy.float32, 'time')
     means[:] = a
+

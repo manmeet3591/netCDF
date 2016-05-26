@@ -23,23 +23,17 @@ def writeFile(year):
     xt_ocean = dataset.createDimension('xt_ocean', 224)
     return dataset
 
-mean_cya = open('files/mean/cya.txt','w')
-mean_lpp = open('files/mean/lpp.txt','w')
-mean_spp = open('files/mean/spp.txt','w')
-mean_nh4 = open('files/mean/nh4.txt','w')
-mean_no3 = open('files/mean/no3.txt','w')
-mean_po4 = open('files/mean/po4.txt','w')
-mean_zoo = open('files/mean/zoo.txt','w')
-mean_ipw = open('files/mean/ipw.txt','w')
-mean_det = open('files/mean/det.txt','w')
-mean_don = open('files/mean/don.txt','w')
-mean_sed_1 = open('files/mean/set_1.txt','w')
-mean_ips_1 = open('files/mean/ips_1.txt','w')
-mean_temp = open('files/mean/temp.txt', 'w')
-mean_salt = open('files/mean/salt.txt', 'w')
+def writeFilemean():
+    location = ('files/mean/ocean_day3d_means.nc')
+    dataset_mean = netCDF4.Dataset(location, 'w', format='NETCDF4')
+    time = dataset_mean.createDimension('time', None)
+    st_ocean = dataset_mean.createDimension('st_ocean', 134)
+    yt_ocean = dataset_mean.createDimension('yt_ocean', 242)
+    xt_ocean = dataset_mean.createDimension('xt_ocean', 224)
+    return dataset_mean
 
 
-
+variable_mean = []
 for i in range (1850, 2010):
 
     # Create File and intialize dimensions    
@@ -140,20 +134,23 @@ for i in range (1850, 2010):
 
 
     #	mean of field
-    t_no3_mean = numpy.mean(t_no3_field)
-    t_po4_mean = numpy.mean(t_po4_field)
-    t_zoo_mean = numpy.mean(t_zoo_field)
-    t_ipw_mean = numpy.mean(t_ipw_field)
-    t_det_mean = numpy.mean(t_det_field)
-    t_don_mean = numpy.mean(t_don_field)
-    t_sed_1_mean = numpy.mean(t_sed_1_field)
-    t_ips_1_mean = numpy.mean(t_ips_1_field)
-    t_cya_mean = numpy.mean(t_cya_field)
-    t_lpp_mean = numpy.mean(t_lpp_field)
-    t_spp_mean = numpy.mean(t_spp_field)
-    t_nh4_mean = numpy.mean(t_nh4_field)
-    temp_mean = numpy.mean(temp_field)
-    salt_mean = numpy.mean(salt_field)
+    variable_means = numpy.ones((14))
+    variable_means[0] = numpy.mean(t_no3_field)
+    variable_means[1] = numpy.mean(t_po4_field)
+    variable_means[2] = numpy.mean(t_zoo_field)
+    variable_means[3] = numpy.mean(t_ipw_field)
+    variable_means[4] = numpy.mean(t_det_field)
+    variable_means[5] = numpy.mean(t_don_field)
+    variable_means[6] = numpy.mean(t_sed_1_field)
+    variable_means[7] = numpy.mean(t_ips_1_field)
+    variable_means[8] = numpy.mean(t_cya_field)
+    variable_means[9] = numpy.mean(t_lpp_field)
+    variable_means[10] = numpy.mean(t_spp_field)
+    variable_means[11] = numpy.mean(t_nh4_field)
+    variable_means[12] = numpy.mean(temp_field)
+    variable_means[13] = numpy.mean(salt_field)
+    variable_mean.append(variable_means)
+    print len(variable_mean)
 
     # write data to file
     print 'writing data to file ...'
@@ -227,22 +224,6 @@ for i in range (1850, 2010):
         var.setncattr('time_avg_info', attrs_vars[i].time_avg_info)
         var.setncattr('coordinates', attrs_vars[i].coordinates)
         i = i + 1
-    # write to files for mean
-    mean_cya.write(year + " " + str(t_cya_mean) + "\n")
-    mean_lpp.write(year + " " + str(t_lpp_mean) + "\n")
-    mean_spp.write(year + " " + str(t_spp_mean) + "\n")
-    mean_nh4.write(year + " " + str(t_nh4_mean) + "\n")
-    mean_no3.write(year + " " + str(t_no3_mean) + "\n")
-    mean_po4.write(year + " " + str(t_po4_mean) + "\n")
-    mean_zoo.write(year + " " + str(t_zoo_mean) + "\n")
-    mean_ipw.write(year + " " + str(t_ipw_mean) + "\n")
-    mean_det.write(year + " " + str(t_det_mean) + "\n")
-    mean_don.write(year + " " + str(t_don_mean) + "\n")
-    mean_sed_1.write(year + " " + str(t_sed_1_mean) + "\n")
-    mean_ips_1.write(year + " " + str(t_ips_1_mean) + "\n")
-    mean_temp.write(year + " " +str(temp_mean) + "\n")
-    mean_salt.write(year + " " + str(salt_mean) + "\n")
-    
 
     #   write data
     t_cya_verts[:] = t_cya_vert
@@ -327,16 +308,68 @@ for i in range (1850, 2010):
    # close file
     dataset.close()
     print 'Done with year:', year
+print len(variable_mean[:]),len(variable_mean[0][:])
+a = numpy.ones((len(variable_mean[:])))
+b = numpy.ones((len(variable_mean[:])))
+c = numpy.ones((len(variable_mean[:])))
+d = numpy.ones((len(variable_mean[:])))
+e = numpy.ones((len(variable_mean[:])))
+f = numpy.ones((len(variable_mean[:])))
+g = numpy.ones((len(variable_mean[:])))
+h = numpy.ones((len(variable_mean[:])))
+k = numpy.ones((len(variable_mean[:])))
+l = numpy.ones((len(variable_mean[:])))
+m = numpy.ones((len(variable_mean[:])))
+n = numpy.ones((len(variable_mean[:])))
+o = numpy.ones((len(variable_mean[:])))
+p = numpy.ones((len(variable_mean[:])))
 
-mean_cya.close()
-mean_spp.close()
-mean_lpp.close()
-mean_no3.close()
-mean_nh4.close()
-mean_po4.close()
-mean_zoo.close()
-mean_ipw.close()
-mean_det.close()
-mean_don.close()
-mean_sed_1.close()
-mean_t_ips_1.close()
+
+dataset_mean = writeFilemean()
+t_cya_means = dataset_mean.createVariable('t_cya_mean', numpy.float32,('time'))
+t_lpp_means = dataset_mean.createVariable('t_lpp_mean', numpy.float32,('time'))
+t_spp_means = dataset_mean.createVariable('t_spp_mean', numpy.float32,('time'))
+t_nh4_means = dataset_mean.createVariable('t_nh4_mean', numpy.float32,('time'))
+t_no3_means = dataset_mean.createVariable('t_no3_mean', numpy.float32,('time'))
+t_po4_means = dataset_mean.createVariable('t_po4_mean', numpy.float32,('time'))
+t_zoo_means = dataset_mean.createVariable('t_zoo_mean', numpy.float32,('time'))
+t_ipw_means = dataset_mean.createVariable('t_ipw_mean', numpy.float32,('time'))
+t_det_means = dataset_mean.createVariable('t_det_mean', numpy.float32,('time'))
+t_don_means = dataset_mean.createVariable('t_don_mean', numpy.float32,('time'))
+t_sed_1_means = dataset_mean.createVariable('t_sed_1_mean', numpy.float32,('time'))
+t_ips_1_means = dataset_mean.createVariable('t_ips_1_mean', numpy.float32,('time'))
+temp_means = dataset_mean.createVariable('temp_mean', numpy.float32,('time'))
+salt_means = dataset_mean.createVariable('salt_mean', numpy.float32,('time'))
+
+for i in range(len(variable_mean[:])):
+    a[i] = variable_mean[i][8]
+    b[i] = variable_mean[i][9]
+    c[i] = variable_mean[i][10]
+    d[i] = variable_mean[i][11]
+    e[i] = variable_mean[i][0]
+    f[i] = variable_mean[i][1]
+    g[i] = variable_mean[i][2]
+    h[i] = variable_mean[i][3]
+    k[i] = variable_mean[i][4]
+    l[i] = variable_mean[i][5]
+    m[i] = variable_mean[i][6]
+    n[i] = variable_mean[i][7]
+    o[i] = variable_mean[i][12]
+    p[i] = variable_mean[i][13]
+    
+t_cya_means[:] = a
+t_lpp_means[:] = b
+t_spp_means[:] = c
+t_nh4_means[:] = d
+t_no3_means[:] = e
+t_po4_means[:] = f
+t_zoo_means[:] = g
+t_ipw_means[:] = h
+t_det_means[:] = k
+t_don_means[:] = l
+t_sed_1_means[:] = m
+t_ips_1_means[:] = n
+temp_means[:] = o
+salt_means[:] = p
+
+

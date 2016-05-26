@@ -13,9 +13,10 @@ import matplotlib as mpl
 import argparse
 from matplotlib.dates import MonthLocator, WeekdayLocator, DateFormatter
 import datetime as dt
+import calendar
 
 def writeFile(year):
-    location = ('files/flux_sed/auswertung_flux_sed_' + year + '.nc')
+    location = ('files/flux_sed/auswertung_flux_' + year + '.nc')
     dataset = netCDF4.Dataset(location,'w',format='NETCDF4')
     time = dataset.createDimension('time', None)
     st_ocean = dataset.createDimension('st_ocean', 134)
@@ -47,7 +48,7 @@ for i in range (1850,2010):
     xt_oceans = dataset.createVariable('xt_ocean', 'f4',('xt_ocean'))
     yt_oceans = dataset.createVariable('yt_ocean', 'f4',('yt_ocean'))
     st_oceans = dataset.createVariable('st_ocean', 'i4', ('st_ocean'))
-
+    
     area_t_data = nc_math.variables['area_t'][:]
     j = 0
     variable_list = []
@@ -60,18 +61,22 @@ for i in range (1850,2010):
     variable_int = numpy.ones((shaping))
     variable_int = numpy.ma.array(variable_int)
 
+    daysinyear = 365
+    if calendar.isleap(int(year)) == True:
+	daysinyear = daysinyear + 1
     for i in range(4,17):
-        variable_int[j] = (variable_list[i][:]*area_t_data)
+        variable_int[j] = (variable_list[i][:]*area_t_data*daysinyear)
         j = j + 1
     # vertsum
-
+   
     variable_field = numpy.sum(variable_int, axis = 2)
     variable_field = numpy.sum(variable_field, axis = 2)
     variable_mean = numpy.mean(variable_field, axis = 1)
+    print variable_mean.shape
     variable_means.append(variable_mean)
-    print variable_field.shape
+    print len(variable_means) 
     #write Data to file
-
+    
     attrs = [variable_list[2],variable_list[1], variable_list[0]]
     attrs_n = [times,yt_oceans, xt_oceans]
     i = 0
@@ -86,18 +91,18 @@ for i in range (1850,2010):
 
     count = 0
     for i in variable_list[4:17]:
-	    k = dataset.createVariable(str(i.name)+'_field', numpy.float32,('time'))
-	    k.setncattr('units','mol * d-1')
+	k = dataset.createVariable(str(i.name)+'_field', numpy.float32,('time'))
+	k.setncattr('units','mol * d-1')
         k.setncattr('long_name',i.long_name + '+ horizontal')
         k.setncattr('_FillValue',i._FillValue)
         k.setncattr('missing_value', i.missing_value)
         k.setncattr('cell_methods', i.cell_methods)
         k.setncattr('time_avg_info', i.time_avg_info)
         k.setncattr('coordinates', i.coordinates)
-	    k[:] = variable_field[count]
-	    count = count + 1
-
-
+	k[:] = variable_field[count]
+	count = count + 1
+         
+   
     print 'Done with year' + year
     dataset.close()
 
@@ -107,4 +112,5 @@ for j in range (len(variable_means[0][:])):
     for i in range (len(variable_means[:])):
 	a[i] = variable_means[i][j]
     means = dataset_mean.createVariable(str(variable_list[4+j].name)+'_mea',numpy.float32, 'time')
-    means[:] = a
+    means[:] = a       
+
