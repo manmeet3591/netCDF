@@ -59,12 +59,8 @@ for i in range (1850,2010):
     shaping = numpy.insert(shaping,0,13)
     variable_int = numpy.ones((shaping))
     variable_int = numpy.ma.array(variable_int)
-    daysinyear = 365
-    if calendar.isleap(int(year)) == True:
-	daysinyear = daysinyear+1
-    print daysinyear
     for i in range(4,17):
-        variable_int[j] = (variable_list[i][:]*area_t_data*daysinyear)
+        variable_int[j] = (variable_list[i][:]*area_t_data)
         j = j + 1
     # vertsum
 

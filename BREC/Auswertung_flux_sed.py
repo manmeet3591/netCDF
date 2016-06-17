@@ -65,16 +65,17 @@ for i in range (1850,2010):
     if calendar.isleap(int(year)) == True:
 	daysinyear = daysinyear + 1
     for i in range(4,17):
-        variable_int[j] = (variable_list[i][:]*area_t_data*daysinyear)
+        variable_int[j] = (variable_list[i][:]*area_t_data)
+	print variable_list[i].name
         j = j + 1
-    # vertsum
-   
+ 
+    # fieldsum
     variable_field = numpy.sum(variable_int, axis = 2)
     variable_field = numpy.sum(variable_field, axis = 2)
+
     variable_mean = numpy.mean(variable_field, axis = 1)
     print variable_mean.shape
     variable_means.append(variable_mean)
-    print len(variable_means) 
     #write Data to file
     
     attrs = [variable_list[2],variable_list[1], variable_list[0]]
@@ -101,8 +102,7 @@ for i in range (1850,2010):
         k.setncattr('coordinates', i.coordinates)
 	k[:] = variable_field[count]
 	count = count + 1
-         
-   
+
     print 'Done with year' + year
     dataset.close()
 
@@ -113,4 +113,3 @@ for j in range (len(variable_means[0][:])):
 	a[i] = variable_means[i][j]
     means = dataset_mean.createVariable(str(variable_list[4+j].name)+'_mea',numpy.float32, 'time')
     means[:] = a       
-

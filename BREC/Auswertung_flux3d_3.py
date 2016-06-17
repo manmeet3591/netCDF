@@ -15,7 +15,7 @@ from matplotlib.dates import MonthLocator, WeekdayLocator, DateFormatter
 import datetime as dt
 
 def writeFile(year):
-    location = ('files/flux3d/auswertung_flux_' + year + '.nc')
+    location = ('/silos/boergel/BREC/files/flux3d/auswertung_flux_' + year + '.nc')
     dataset = netCDF4.Dataset(location,'w',format='NETCDF4')
     time = dataset.createDimension('time', None)
     st_ocean = dataset.createDimension('st_ocean', 134)
@@ -24,7 +24,7 @@ def writeFile(year):
     return dataset
 
 def writeFilemean():
-    location = ('files/mean/flux3d_means.nc')
+    location = ('/silos/boergel/BREC/files/mean/flux3d_means.nc')
     dataset_mean = netCDF4.Dataset(location, 'w', format='NETCDF4')
     time = dataset_mean.createDimension('time', None)
     st_ocean = dataset_mean.createDimension('st_ocean', 134)
@@ -34,28 +34,28 @@ def writeFilemean():
 
 
 variable_means = []
-for i in range (1850,2010):
+for i in range (1850,2009):
+    # initialize
     year = str(i)
+    print year
     dataset = writeFile(year)
-    nc_data = netCDF4.Dataset('/silos/thomas/ModelExp/BREC/V01_R02/balt-3nm-skag-v01-r02_' + year + '/ergom_flux3d.nc')
-    nc_math = netCDF4.Dataset('/silos/thomas/ModelExp/BREC/V01_R02/balt-3nm-skag-v01-r02_' + year + '/ocean_day3d.nc')
-    # variables
-    #variable_names = {}
-    #variable_names[str(i)+"s"] = nc_data.variables[str(i)]
-    #for i in variable_names:
     times = dataset.createVariable('time','f8',('time'))
     xt_oceans = dataset.createVariable('xt_ocean', 'f4',('xt_ocean'))
     yt_oceans = dataset.createVariable('yt_ocean', 'f4',('yt_ocean'))
     st_oceans = dataset.createVariable('st_ocean', 'i4', ('st_ocean'))
-    
+    nc_data = netCDF4.Dataset('/silos/thomas/ModelExp/BREC/V01_R02/balt-3nm-skag-v01-r02_' + year + '/ergom_flux3d.nc')
+    nc_math = netCDF4.Dataset('/silos/thomas/ModelExp/BREC/V01_R02/balt-3nm-skag-v01-r02_' + year + '/ocean_day3d.nc')
     dzt_data = nc_math.variables['dzt'][:]
     area_t_data = nc_math.variables['area_t'][:]
+
+    # Load all variables from nc_data
     j = 0
     variable_list = []
 
     for i in nc_data.variables:
         variable_list.append(nc_data.variables[str(i)])
-
+   
+    # create array for all variables from nc_data
     shaping = variable_list[6].shape
     shaping = numpy.insert(shaping,0,30)
     variable_int = numpy.ones((shaping))
@@ -64,16 +64,18 @@ for i in range (1850,2010):
     for i in range(6,36):
         variable_int[j] = (variable_list[i][:]*dzt_data*area_t_data)
         j = j + 1
+
     # vertsum
     variable_vert = numpy.sum(variable_int, axis = 2)
-   
+    # fieldsum
     variable_field = numpy.sum(variable_vert, axis = 2)
     variable_field = numpy.sum(variable_field, axis = 2)
+    # mean
     variable_mean = numpy.mean(variable_field, axis = 1)
     variable_means.append(variable_mean)
     print variable_field.shape 
-    #write Data to file
     
+    #write data to file
     attrs = [variable_list[4],variable_list[2],variable_list[1], variable_list[0]]
     attrs_n = [times,st_oceans,yt_oceans, xt_oceans]
     i = 0
@@ -87,6 +89,7 @@ for i in range (1850,2010):
     yt_oceans[:] = variable_list[1]
     st_oceans[:] = variable_list[2] 
 
+    # set attributes for .nc file
     count = 0
     for i in variable_list[6:36]:
         j = dataset.createVariable(str(i.name)+'_vert',  numpy.float32,('time', 'yt_ocean', 'xt_ocean'))
@@ -113,6 +116,7 @@ for i in range (1850,2010):
     print 'Done with year' + year
     dataset.close()
 
+# Write mean
 a = numpy.ones((len(variable_means[:])))
 dataset_mean = writeFilemean()
 for j in range (len(variable_means[0][:])):
