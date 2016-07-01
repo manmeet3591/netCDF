@@ -27,7 +27,7 @@ while check == False:
 		plot = True
 	if input == 'n':
 		check = True
-
+# Init
 t_cya_field =np.array([])
 t_lpp_field =np.array([])
 t_spp_field =np.array([])
@@ -44,6 +44,11 @@ temp_field =np.array([])
 temp_field_std = np.array([])
 salt_field =np.array([])
 salt_field_std=np.array([])
+salt_list_2 = []
+temp_list_2 = []
+salt_list_200 = []
+temp_list_200 = []
+o2_list_200 = []
 
 for i in range (1851, 2010):
 	year = str(i)
@@ -67,6 +72,25 @@ for i in range (1851, 2010):
 	temp_field_std = np.append(temp_field_std, np.std(variable_list[28][:]))
 	salt_field =np.append(salt_field , np.mean(variable_list[29][:]))
         salt_field_std = np.append(salt_field_std, np.std(variable_list[29][:]))
+
+	# Markus Validation
+	nc_raw = netCDF4.Dataset('/silos/thomas/ModelExp/BREC/V01_R02/balt-3nm-skag-v01-r02_' + year + '/ocean_day3d.nc')
+        temp_2 = nc_raw.variables['temp'][:,1,69,118]
+        salt_2 = nc_raw.variables['salt'][:,1,69,118]
+	o2_200    = nc_raw.variables['t_o2'][:,100,69,118]*22.4*1022.4*1000
+        temp = np.mean(temp_2, axis = 0)
+        salt = np.mean(salt_2, axis = 0)
+	o2_200 = np.mean(o2_200, axis = 0)
+        salt_list_2.append(salt)
+        temp_list_2.append(temp)
+        temp_200 = nc_raw.variables['temp'][:,100,69,118]
+        salt_200 = nc_raw.variables['salt'][:,100,69,118]
+        temp_200 = np.mean(temp_200, axis = 0)
+        salt_200 = np.mean(salt_200, axis = 0)
+        salt_list_200.append(salt_200)
+        temp_list_200.append(temp_200)
+	o2_list_200.append(o2_200)
+        print 'Done with' + year
 
 
 ## Calculate 10 year mean
@@ -133,49 +157,82 @@ for i in range(len(t_cya_field)):
 	temp_field_run = np.append(temp_field_run, np.mean(temp_field[i:i+3]))
 	salt_field_run = np.append(salt_field_run, np.mean(salt_field[i:i+3]))
 
-	x = np.arange((len(temp_field)))
-	x = x+1850
-	temp_mean = np.mean(temp_field)
-	temp_std = np.std(temp_field)
-	fit = np.polyfit(x,temp_field,1)
-	fit_fn = np.poly1d(fit)
-	pl.figure()
-	pl.plot(x, temp_field, '-b', x, fit_fn(x), '--k')
-	pl.axhline(y=temp_mean, xmin=0, xmax=1, hold=None, color='red')
-	pl.axhline(y=temp_mean+temp_std, xmin=0, xmax=1, hold=None, color='green')
-	pl.axhline(y=temp_mean-temp_std, xmin=0, xmax=1, hold=None, color='green')
+# Fit Functions
+x = np.arange((len(temp_field)))
+x = x+1850
+#temp_mean = np.mean(temp_field)
+#temp_std = np.std(temp_field)
+fit_t_2 = np.polyfit(x,temp_list_2,1)
+fit_fn_t_2 = np.poly1d(fit_t_2)
+fit_t_200 = np.polyfit(x,temp_list_200,1)
+fit_fn_t_200 = np.poly1d(fit_t_200)
+fit_s_2 = np.polyfit(x,salt_list_2,1)
+fit_fn_s_2 = np.poly1d(fit_s_2)
+fit_s_200 = np.polyfit(x,salt_list_2,1)
+fit_fn_s_200 = np.poly1d(fit_s_200)
+
+#pl.figure()
+#pl.plot(x, temp_field, '-b', x, fit_fn(x), '--k')
+#pl.axhline(y=temp_mean, xmin=0, xmax=1, hold=None, color='red')
+#pl.axhline(y=temp_mean+temp_std, xmin=0, xmax=1, hold=None, color='green')
+#pl.axhline(y=temp_mean-temp_std, xmin=0, xmax=1, hold=None, color='green')
 
 a = 1
 
 if plot == True:
 	a = pl.figure()
-	ax1 = pl.subplot(411)
-	pl.plot(x, temp_field)
-	pl.plot(x,fit_fn(x), '--r')
+	ax1 = pl.subplot(711)
+	pl.plot(x, temp_list_2)
+	pl.plot(x,fit_fn_t_2(x), '--r')
 	pl.setp(ax1.get_xticklabels(), fontsize=6)
 	pl.setp(ax1.get_yticklabels(), fontsize=6)
-	pl.ylabel('T in [C]')
+	pl.ylabel('T in [C] at 2m',fontsize=6)
+
+        ax2 = pl.subplot(712, sharex=ax1)
+        pl.plot(x, temp_list_200)
+        pl.plot(x,fit_fn_t_200(x), '--r')
+        pl.setp(ax2.get_xticklabels(), fontsize=6)
+        pl.setp(ax2.get_yticklabels(), fontsize=6)
+        pl.ylabel('T in [C] at 200 m', fontsize = 6)
 
 	# share x only
-	ax2 = pl.subplot(412, sharex=ax1)
-	pl.plot(x, salt_field, '-r')
+	ax3 = pl.subplot(713, sharex=ax1)
+	pl.plot(x, salt_list_2, '-r')
+	pl.plot(x,fit_fn_s_2(x),'--r')
 	# make these tick labels invisible
-	pl.setp(ax2.get_xticklabels(), fontsize=6)
-	pl.setp(ax2.get_yticklabels(), fontsize=6)
-	pl.ylabel('Salt [psu]')
-
-	ax3 = pl.subplot(413, sharex=ax1)
 	pl.setp(ax3.get_xticklabels(), fontsize=6)
 	pl.setp(ax3.get_yticklabels(), fontsize=6)
-	pl.plot(x, t_po4_field, '-g')
-	pl.ylabel('po4 [mol]')
+	pl.ylabel('Salt [psu] at 2 m', fontsize = 6)
 
-	ax4 = pl.subplot(414, sharex=ax1)
-	pl.setp(ax4.get_xticklabels(), fontsize=6)
-	pl.setp(ax4.get_yticklabels(), fontsize=6)
+	# share x only
+        ax4 = pl.subplot(714, sharex=ax1)
+        pl.plot(x, salt_list_200, '-r')
+	pl.plot(x, fit_fn_s_200(x), '--r')
+        # make these tick labels invisible
+        pl.setp(ax4.get_xticklabels(), fontsize=6)
+        pl.setp(ax4.get_yticklabels(), fontsize=6)
+        pl.ylabel('Salt [psu] at 200 m', fontsize = 6)
+
+
+	ax5 = pl.subplot(715, sharex=ax1)
+	pl.setp(ax5.get_xticklabels(), fontsize=6)
+	pl.setp(ax5.get_yticklabels(), fontsize=6)
+	pl.plot(x, t_po4_field, '-g')
+	pl.ylabel('po4 [mol]', fontsize = 6)
+
+	ax6 = pl.subplot(716, sharex=ax1)
+	pl.setp(ax6.get_xticklabels(), fontsize=6)
+	pl.setp(ax6.get_yticklabels(), fontsize=6)
 	pl.plot(x,t_no3_field, '-b')
-	pl.ylabel('NO3 [mol]')
-	a.subplots_adjust(hspace=0.2)
+	pl.ylabel('NO3 [mol]', fontsize = 6)
+
+        ax7 = pl.subplot(717, sharex=ax1)
+        pl.setp(ax7.get_xticklabels(), fontsize=6)
+        pl.setp(ax7.get_yticklabels(), fontsize=6)
+        pl.plot(x,o2_list_200, '-b')
+        pl.ylabel('O2 [mol] at 200 m', fontsize = 6)
+        a.subplots_adjust(hspace=0.2)
+
 	a.savefig('../figures/mean/meier.png')
 
 	# Plot Field
