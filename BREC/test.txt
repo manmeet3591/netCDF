@@ -1,0 +1,15 @@
+import sys, string 
+from matplotlib import rc
+import numpy
+import pylab as pl
+import netCDF4
+import time as t
+import datetime
+p_nh4_assim_lpp_mea = netCDF4.Dataset['p_nh4_assim_lpp_mea']
+p_no3_assim_spp_mea = netCDF4.Dataset['p_no3_assim_spp_mea']
+p_nh4_assim_spp_mea = netCDF4.Dataset['p_nh4_assim_spp_mea']
+p_n2_assim_cya_mea = netCDF4.Dataset['p_n2_assim_cya_mea']
+p_assim_lpp_poc_mea = netCDF4.Dataset['p_assim_lpp_poc_mea']
+p_assim_spp_poc_mea = netCDF4.Dataset['p_assim_spp_poc_mea']
+p_assim_cya_poc_mea = netCDF4.Dataset['p_assim_cya_poc_mea']
+p_lpp_resp_nh4_mea = netCDF4.Dataset['p_lpp_resp_nh4_mea']

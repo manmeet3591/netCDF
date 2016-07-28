@@ -90,7 +90,7 @@ for i in range (1850,2010):
     flux_cya_vyxs = dataset.createVariable('flux_cya_vyx', numpy.float32,('time'))
     flux_lpp_vyxs = dataset.createVariable('flux_lpp_vyx', numpy.float32,('time'))
     flux_spp_vyxs = dataset.createVariable('flux_spp_vyx', numpy.float32,('time'))
-    flux_zoo_vyxs = dataset.createVariable('flux_zoo_vyx', numpy.float32,('time'))            
+    flux_zoo_vyxs = dataset.createVariable('flux_zoo_vyx', numpy.float32,('time'))
     flux_det_vyxs = dataset.createVariable('flux_det_vyx', numpy.float32,('time'))
 
 

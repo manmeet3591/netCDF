@@ -36,10 +36,10 @@ def writeFilemean():
 variable_mean = []
 for i in range (1850, 2010):
 
-    # Create File and intialize dimensions    
+    # Create File and intialize dimensions
     year = str(i)
     dataset = writeFile(year)
-    
+
     # Load Data
     print 'loading data ...'
     nc_data = netCDF4.Dataset('/silos/thomas/ModelExp/BREC/V01_R02/balt-3nm-skag-v01-r02_' + year + '/ocean_day3d.nc')
@@ -102,7 +102,7 @@ for i in range (1850, 2010):
     temp_vert  = numpy.mean(temp_int, axis=1)
     salt_vert  = numpy.mean(salt_int, axis=1)
 
-    
+
     t_nh4_field = numpy.sum(t_nh4_vert, axis=1)
     t_no3_field = numpy.sum(t_no3_vert, axis=1)
     t_po4_field = numpy.sum(t_po4_vert, axis=1)
@@ -181,7 +181,7 @@ for i in range (1850, 2010):
     t_don_verts = dataset.createVariable('t_don_vert', numpy.float32,('time', 'yt_ocean', 'xt_ocean'))
     temp_verts = dataset.createVariable('temp_vert', numpy.float32,('time', 'yt_ocean', 'xt_ocean'))
     salt_verts = dataset.createVariable('salt_vert', numpy.float32,('time', 'yt_ocean', 'xt_ocean'))
-   
+
 
     t_cya_fields = dataset.createVariable('t_cya_field', numpy.float32,('time'))
     t_lpp_fields = dataset.createVariable('t_lpp_field', numpy.float32,('time'))
@@ -203,7 +203,7 @@ for i in range (1850, 2010):
     attrs_vars = [t_cya,t_lpp,t_spp,t_nh4,t_no3,t_po4,t_zoo,t_ipw,t_det,t_don, t_sed_1, t_ips_1,temp,salt]
     attrs_vert = [t_cya_verts,t_lpp_verts,t_spp_verts,t_nh4_verts,t_no3_verts,t_po4_verts,t_zoo_verts,t_ipw_verts,t_det_verts,t_don_verts,temp_verts,salt_verts]
     attrs_field = [t_cya_fields,t_lpp_fields,t_spp_fields,t_nh4_fields,t_no3_fields,t_po4_fields,t_zoo_fields,t_ipw_fields,t_det_fields,t_don_fields, t_sed_1_fields, t_ips_1_fields,temp_fields,salt_fields]
-    i = 0   
+    i = 0
     for var in attrs_vert:
         var.setncattr('units','mol * m^3/kg')
         var.setncattr('long_name',attrs_vars[i].long_name + ' vertical sum')
@@ -254,11 +254,11 @@ for i in range (1850, 2010):
     temp_fields[:] = temp_field
     salt_fields[:] = salt_field
 
-    times[:] = time  
+    times[:] = time
     xt_oceans[:] = xt_ocean
     yt_oceans[:] = yt_ocean
     st_oceans[:] = st_ocean
-    
+
     # plotting figures
     print 'plotting figure ...'
     fig1 = pl.figure(1)
@@ -304,7 +304,7 @@ for i in range (1850, 2010):
     pl.savefig('/silos/boergel/BREC/figures/plot' + year + '.png')
     pl.cla()
     pl.clf()
- 
+
    # close file
     dataset.close()
     print 'Done with year:', year
@@ -356,7 +356,7 @@ for i in range(len(variable_mean[:])):
     n[i] = variable_mean[i][7]
     o[i] = variable_mean[i][12]
     p[i] = variable_mean[i][13]
-    
+
 t_cya_means[:] = a
 t_lpp_means[:] = b
 t_spp_means[:] = c
